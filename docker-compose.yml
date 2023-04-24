@@ -2,16 +2,20 @@ version: '3'
 services:
     laravel.test:
         build:
-            context: ./vendor/laravel/sail/runtimes/8.2
+            context: ./docker/8.2
             dockerfile: Dockerfile
             args:
                 WWWGROUP: '${WWWGROUP}'
+                XDEBUG: '${APP_DEBUG:-false}'
+                XDEBUG_PORT: '${SAIL_XDEBUG_PORT:-9003}'
         image: sail-8.2/app
         extra_hosts:
             - 'host.docker.internal:host-gateway'
         ports:
             - '${APP_PORT:-80}:80'
             - '${VITE_PORT:-5173}:${VITE_PORT:-5173}'
+        expose:
+            - '${SAIL_XDEBUG_PORT:-9003}'
         environment:
             WWWUSER: '${WWWUSER}'
             LARAVEL_SAIL: 1

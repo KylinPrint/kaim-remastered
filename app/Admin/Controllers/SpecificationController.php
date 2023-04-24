@@ -2,13 +2,13 @@
 
 namespace App\Admin\Controllers;
 
-use App\Models\Brand;
+use App\Models\Specification;
 use Dcat\Admin\Form;
 use Dcat\Admin\Grid;
 use Dcat\Admin\Show;
 use Dcat\Admin\Http\Controllers\AdminController;
 
-class BrandController extends AdminController
+class SpecificationController extends AdminController
 {
     /**
      * Make a grid builder.
@@ -17,18 +17,11 @@ class BrandController extends AdminController
      */
     protected function grid()
     {
-        return Grid::make(new Brand(), function (Grid $grid) {
+        return Grid::make(new Specification(), function (Grid $grid) {
             $grid->column('id')->sortable();
-            $grid->column('name')->display(function () {
-                if ($this->subname) {
-                    return $this->name . '(' . $this->subname . ')';
-                } else {
-                    return $this->name;
-                }
-                
-                
-            });
-            // $grid->column('subname');
+            $grid->column('name');
+            $grid->column('category_id');
+            $grid->column('required');
             $grid->column('created_at');
             $grid->column('updated_at')->sortable();
         
@@ -48,10 +41,11 @@ class BrandController extends AdminController
      */
     protected function detail($id)
     {
-        return Show::make($id, new Brand(), function (Show $show) {
+        return Show::make($id, new Specification(), function (Show $show) {
             $show->field('id');
             $show->field('name');
-            $show->field('subname');
+            $show->field('category_id');
+            $show->field('required');
             $show->field('created_at');
             $show->field('updated_at');
         });
@@ -64,10 +58,11 @@ class BrandController extends AdminController
      */
     protected function form()
     {
-        return Form::make(new Brand(), function (Form $form) {
+        return Form::make(new Specification(), function (Form $form) {
             $form->display('id');
-            $form->text('name')->required();
-            $form->text('subname');
+            $form->text('name');
+            $form->text('category_id');
+            $form->text('required');
         
             $form->display('created_at');
             $form->display('updated_at');

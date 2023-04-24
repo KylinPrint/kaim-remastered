@@ -15,4 +15,10 @@ Route::group([
     $router->get('/', 'HomeController@index');
 
     $router->resource('brands', 'BrandController');
+    $router->resource('chips', 'ChipController');
+    $router->resource('distributions', 'DistributionController');
+    $router->resource('categories', 'CategoryController');
+    $router->resource('peripherals', 'PeripheralController');
+    $router->resource('specifications', 'SpecificationController');
+    $router->resource('solutions', 'SolutionController');
 });

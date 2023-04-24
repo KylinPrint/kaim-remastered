@@ -2,13 +2,13 @@
 
 namespace App\Admin\Controllers;
 
-use App\Models\Brand;
+use App\Models\Distribution;
 use Dcat\Admin\Form;
 use Dcat\Admin\Grid;
 use Dcat\Admin\Show;
 use Dcat\Admin\Http\Controllers\AdminController;
 
-class BrandController extends AdminController
+class DistributionController extends AdminController
 {
     /**
      * Make a grid builder.
@@ -17,18 +17,12 @@ class BrandController extends AdminController
      */
     protected function grid()
     {
-        return Grid::make(new Brand(), function (Grid $grid) {
+        return Grid::make(new Distribution(), function (Grid $grid) {
             $grid->column('id')->sortable();
-            $grid->column('name')->display(function () {
-                if ($this->subname) {
-                    return $this->name . '(' . $this->subname . ')';
-                } else {
-                    return $this->name;
-                }
-                
-                
-            });
-            // $grid->column('subname');
+            $grid->column('name');
+            $grid->column('abbr');
+            $grid->column('release');
+            $grid->column('eosl');
             $grid->column('created_at');
             $grid->column('updated_at')->sortable();
         
@@ -48,10 +42,12 @@ class BrandController extends AdminController
      */
     protected function detail($id)
     {
-        return Show::make($id, new Brand(), function (Show $show) {
+        return Show::make($id, new Distribution(), function (Show $show) {
             $show->field('id');
             $show->field('name');
-            $show->field('subname');
+            $show->field('abbr');
+            $show->field('release');
+            $show->field('eosl');
             $show->field('created_at');
             $show->field('updated_at');
         });
@@ -64,10 +60,12 @@ class BrandController extends AdminController
      */
     protected function form()
     {
-        return Form::make(new Brand(), function (Form $form) {
+        return Form::make(new Distribution(), function (Form $form) {
             $form->display('id');
-            $form->text('name')->required();
-            $form->text('subname');
+            $form->text('name');
+            $form->text('abbr');
+            $form->text('release');
+            $form->text('eosl');
         
             $form->display('created_at');
             $form->display('updated_at');
