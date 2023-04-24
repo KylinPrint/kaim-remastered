@@ -1,3 +1,4 @@
+# Laravel
 /node_modules
 /public/build
 /public/hot
@@ -16,3 +17,6 @@ yarn-error.log
 /.fleet
 /.idea
 /.vscode
+
+# Dcat Admin
+dcat_admin_ide_helper.php
