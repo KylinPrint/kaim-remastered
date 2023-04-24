@@ -18,7 +18,7 @@ class PeripheralController extends AdminController
 
     public function __construct()
     {
-        // type_id设置默认值防止不带参数访问外设页面
+        // category_id设置默认值防止不带参数访问外设页面报错
         $this->category_id = request('category') ? request('category') : Category::where('parent_id' , '!=', 0)->orderBy('order')->pluck('id')->first();
     }
 
@@ -31,10 +31,9 @@ class PeripheralController extends AdminController
             ->button('选择外设分类') // 设置按钮
             ->buttonClass('btn btn-outline btn-white waves-effect') // 设置按钮样式
             ->click($categories->find($this->category_id)->title) // 默认选项
-            ->map(function ($id) use ($categories) {
+            ->map(function ($id) {
                 // 格式化菜单选项
-                $url = admin_url('peripherals?type='.$id);
-                // TODO 为什么读不到$types
+                $url = admin_url('peripherals?category='.$id);
                 $title = Category::find($id)->title;
                 return "<a href='$url'>{$title}</a>";
             });
@@ -53,10 +52,11 @@ class PeripheralController extends AdminController
     protected function grid()
     {
         return Grid::make(Peripheral::with(['brand', 'category']), function (Grid $grid) {
+            $grid->model()->where('category_id', $this->category_id)->orderBy('created_at', 'desc');
+
             $grid->column('brand.full_name', admin_trans_field('brand_name'));
-            $grid->column('brand', admin_trans_field('brand_name'))->display(function ($brand) { return $brand->full_name; });
             $grid->column('name');
-            $grid->column('category.title', admin_trans_field('category_name'));
+            $grid->column('category.title', admin_trans_field('category_title'));
             $grid->column('description');
             $grid->column('created_at');
             $grid->column('updated_at')->sortable();
@@ -77,11 +77,11 @@ class PeripheralController extends AdminController
      */
     protected function detail($id)
     {
-        return Show::make($id, new Peripheral(), function (Show $show) {
+        return Show::make($id, Peripheral::with(['brand', 'category']), function (Show $show) {
             $show->field('id');
+            $show->field('brand.full_name', admin_trans_field('brand_name'));
             $show->field('name');
-            $show->field('brand_id');
-            $show->field('category_id');
+            $show->field('category.title', admin_trans_field('category_title'));
             $show->field('description');
             $show->field('created_at');
             $show->field('updated_at');
