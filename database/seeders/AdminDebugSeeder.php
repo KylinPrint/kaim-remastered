@@ -22,7 +22,7 @@ class AdminDebugSeeder extends Seeder
         }
         Brand::factory()->count(50)->create();
         Category::factory()->count(20)->create();
-        Peripheral::factory()->count(100)->create();
+        Peripheral::factory()->count(1000)->create();
         Specification::factory()->count(30)->create();
     }
 }
