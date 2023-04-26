@@ -1,10 +1,9 @@
 <?php
 
+use App\Models\Category;
 use Dcat\Admin\Admin;
-use Dcat\Admin\Grid;
-use Dcat\Admin\Form;
-use Dcat\Admin\Grid\Filter;
-use Dcat\Admin\Show;
+use Dcat\Admin\Layout\Menu;
+use Dcat\Admin\Models\Menu as ModelsMenu;
 
 /**
  * Dcat-admin - admin builder based on Laravel.
@@ -25,5 +24,32 @@ use Dcat\Admin\Show;
  *
  */
 
- // TODO 动态菜单
- 
+// 先生成外设的一级菜单
+$id = 1;
+$menu_list = [
+    [
+        'id'            => $id++,
+        'title'         => 'peripherals',
+        'icon'          => 'fa-file-text-o',
+        'uri'           => '',
+        'parent_id'     => 0,
+        'permission_id' => 'test', // 与权限绑定
+        'roles'         => 'test-roles', // 与角色绑定
+    ],
+];
+// 动态生成外设菜单下的二级菜单
+foreach (Category::where('parent_id', 0)->get() as $category) {
+    $menu_list[] = [
+        'id'            => $id++,
+        'title'         => $category->title,
+        'icon'          => 'fa-file-text-o',
+        'uri'           => 'peripherals?category=' . $category->id,
+        'parent_id'     => 1,
+        'permission_id' => 'test', // 与权限绑定
+        'roles'         => 'test-roles', // 与角色绑定
+    ];
+};
+Admin::menu(function (Menu $menu) use ($menu_list) {
+    $menu->add($menu_list);
+});
+unset($id, $menu_list);

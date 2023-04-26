@@ -2,6 +2,7 @@
 
 namespace App\Admin\Controllers;
 
+use App\Models\Category;
 use App\Models\Specification;
 use Dcat\Admin\Form;
 use Dcat\Admin\Grid;
@@ -17,10 +18,10 @@ class SpecificationController extends AdminController
      */
     protected function grid()
     {
-        return Grid::make(new Specification(), function (Grid $grid) {
+        return Grid::make(Specification::with(['category']), function (Grid $grid) {
             $grid->column('id')->sortable();
             $grid->column('name');
-            $grid->column('category_id');
+            $grid->column('category.title');
             $grid->column('required');
             $grid->column('created_at');
             $grid->column('updated_at')->sortable();
@@ -41,10 +42,10 @@ class SpecificationController extends AdminController
      */
     protected function detail($id)
     {
-        return Show::make($id, new Specification(), function (Show $show) {
+        return Show::make($id, Specification::with(['category']), function (Show $show) {
             $show->field('id');
             $show->field('name');
-            $show->field('category_id');
+            $show->field('category.title');
             $show->field('required');
             $show->field('created_at');
             $show->field('updated_at');
@@ -58,11 +59,11 @@ class SpecificationController extends AdminController
      */
     protected function form()
     {
-        return Form::make(new Specification(), function (Form $form) {
+        return Form::make(Specification::with(['category']), function (Form $form) {
             $form->display('id');
-            $form->text('name');
-            $form->text('category_id');
-            $form->text('required');
+            $form->text('name')->required();
+            $form->select('category_id')->options(Category::where('parent_id', '!=', 0)->pluck('title', 'id'))->required();
+            $form->radio('required')->options([1 => '是', 0 => '否'])->required();
         
             $form->display('created_at');
             $form->display('updated_at');

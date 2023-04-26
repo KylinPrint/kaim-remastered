@@ -234,7 +234,7 @@ return [
     'menu' => [
         'cache' => [
             // enable cache or not
-            'enable' => false,
+            'enable' => env('ADMIN_MENU_CACHE', false),
             'store'  => 'file',
         ],
 
@@ -332,7 +332,7 @@ return [
         // light, primary, dark
         'sidebar_style' => 'light',
 
-        'dark_mode_switch' => false,
+        'dark_mode_switch' => true,
 
         // bg-primary, bg-info, bg-warning, bg-success, bg-danger, bg-dark
         'navbar_color' => '',

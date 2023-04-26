@@ -14,6 +14,7 @@ return new class extends Migration
     public function up()
     {
         Schema::create('peripheral_specification', function (Blueprint $table) {
+            $table->id();
             $table->unsignedBigInteger('peripheral_id');
             $table->unsignedBigInteger('specification_id');
             $table->string('value');
