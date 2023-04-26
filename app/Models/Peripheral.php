@@ -15,5 +15,6 @@ class Peripheral extends Model
 
     public function brand() { return $this->belongsTo(Brand::class); }
     public function category() { return $this->belongsTo(Category::class); }
-    public function specifications() { return $this->belongsToMany(Specification::class); }
+    public function values() { return $this->hasMany(Value::class); }
+    
 }

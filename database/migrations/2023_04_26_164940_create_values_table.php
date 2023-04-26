@@ -13,13 +13,13 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('peripheral_specification', function (Blueprint $table) {
+        Schema::create('values', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('peripheral_id');
-            $table->unsignedBigInteger('specification_id');
-            $table->string('value');
+            $table->foreignId('peripheral_id')->constrained()->onUpdate('cascade')->onDelete('cascade');
+            $table->foreignId('specification_id')->constrained()->onUpdate('cascade')->onDelete('cascade');
+            $table->string('value')->comment('参数值');
             $table->timestamps();
-            $table->unique(['peripheral_id', 'specification_id', 'value'], 'value_unique');
+            $table->softDeletes();
         });
     }
 
@@ -30,6 +30,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('peripheral_specification');
+        Schema::dropIfExists('values');
     }
 };

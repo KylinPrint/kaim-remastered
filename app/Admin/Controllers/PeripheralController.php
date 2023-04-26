@@ -20,6 +20,7 @@ class PeripheralController extends AdminController
 
     public function __construct()
     {
+        // TODO: URL非法时进入编辑页面后点击列表或编辑完成不会原路返回
         if (!Category::where('id', request('category'))->exists()) {
             // 防止URL参数不合法时报错
             $id = Category::where('parent_id' , '!=', 0)->orderBy('order')->pluck('id')->first();
@@ -72,9 +73,10 @@ class PeripheralController extends AdminController
      */
     protected function grid()
     {
-        Admin::script('document.title="' . config('admin.title') . ' | ' . $this->category->title . '"');
+        // 重新生成页面<title>
+        Admin::script('document.title="' . config('admin.title') . ' | 外设 - ' . $this->category->title . '"');
 
-        return Grid::make(Peripheral::with(['brand', 'category', 'specifications']), function (Grid $grid) {
+        return Grid::make(Peripheral::with(['brand', 'category']), function (Grid $grid) {
             $grid->model()->where('category_id', $this->category->id)->orderBy('created_at', 'desc');
 
             $grid->column('brand.full_name', admin_trans_field('brand_name'));
@@ -82,10 +84,10 @@ class PeripheralController extends AdminController
             // $grid->column('category.title', admin_trans_field('category_title'));
             $grid->column('description');
 
-            # 生成参数列
-            $specifications = Category::find($this->category->id)->specifications->pluck('name');
+            // 生成参数列
+            $specifications = Category::find($this->category->id)->specifications;
             foreach ($specifications as $specification) {
-                $grid->column($specification)->display(function () {
+                $grid->column($specification->name)->display(function () {
                     return '不给看';
                 });
             }
@@ -97,6 +99,8 @@ class PeripheralController extends AdminController
                 $filter->equal('id');
         
             });
+
+            $grid->model()->setConstraints([ 'category' => $this->category->id ]);
         });
     }
 
@@ -109,7 +113,7 @@ class PeripheralController extends AdminController
      */
     protected function detail($id)
     {
-        return Show::make($id, Peripheral::with(['brand', 'category', 'specifications']), function (Show $show) {
+        return Show::make($id, Peripheral::with(['brand', 'category']), function (Show $show) {
             $show->field('id');
             $show->field('brand.full_name', admin_trans_field('brand_name'));
             $show->field('name');
@@ -127,7 +131,7 @@ class PeripheralController extends AdminController
      */
     protected function form()
     {
-        return Form::make(Peripheral::with(['brand', 'category', 'specifications']), function (Form $form) {
+        return Form::make(Peripheral::with(['brand', 'category']), function (Form $form) {
             $form->display('id');
             // 编辑时分类
             if ($form->isEditing()) {
@@ -145,9 +149,9 @@ class PeripheralController extends AdminController
             $form->text('description');
 
             // 参数
-            $form->hasMany('specifications', function (Form\NestedForm $form) {
-                $form->select('');
-                $form->text('');
+            $form->hasMany('values', function (Form\NestedForm $form) {
+                $form->select('specification_id')->options(Specification::where('category_id', $this->category->id)->pluck('name', 'id'));
+                $form->text('value');
             });
         
             $form->display('created_at');
