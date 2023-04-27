@@ -2,6 +2,7 @@
 
 namespace App\Admin\Controllers;
 
+use App\Admin\Actions\Form\ListButton;
 use App\Models\Brand;
 use App\Models\Category;
 use App\Models\Peripheral;
@@ -20,7 +21,6 @@ class PeripheralController extends AdminController
 
     public function __construct()
     {
-        // TODO: URL非法时进入编辑页面后点击列表或编辑完成不会原路返回
         if (!Category::where('id', request('category'))->exists()) {
             // 防止URL参数不合法时报错
             $id = Category::where('parent_id' , '!=', 0)->orderBy('order')->pluck('id')->first();
@@ -131,7 +131,7 @@ class PeripheralController extends AdminController
      */
     protected function form()
     {
-        return Form::make(Peripheral::with(['brand', 'category']), function (Form $form) {
+        return Form::make(Peripheral::with(['brand', 'category', 'values']), function (Form $form) {
             $form->display('id');
             // 编辑时分类
             if ($form->isEditing()) {
@@ -150,12 +150,21 @@ class PeripheralController extends AdminController
 
             // 参数
             $form->hasMany('values', function (Form\NestedForm $form) {
+                // TODO: 同一个参数不允许多次选择
                 $form->select('specification_id')->options(Specification::where('category_id', $this->category->id)->pluck('name', 'id'));
                 $form->text('value');
-            });
+            })->useTable();
         
             $form->display('created_at');
             $form->display('updated_at');
+
+            
+            // 自定义列表按钮
+            $form->tools(function (Form\Tools $tools) {
+                $tools->disableList();
+                $href = '/admin/peripherals?category=' . request('category');
+                $tools->append('<div class="btn-group pull-right" style="margin-right: 5px"><a href="'. $href . '" class="btn btn-sm btn-primary "><i class="feather icon-list"></i><span class="d-none d-sm-inline">&nbsp;'. trans('admin.list') . '</span></a></div>');
+            });
         });
     }
 }

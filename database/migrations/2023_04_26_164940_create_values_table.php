@@ -20,6 +20,7 @@ return new class extends Migration
             $table->string('value')->comment('参数值');
             $table->timestamps();
             $table->softDeletes();
+            $table->unique(['peripheral_id', 'specification_id']);
         });
     }
 
