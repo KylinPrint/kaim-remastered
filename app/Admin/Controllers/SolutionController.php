@@ -2,13 +2,13 @@
 
 namespace App\Admin\Controllers;
 
-use App\Models\Brand;
+use App\Models\Solution;
 use Dcat\Admin\Form;
 use Dcat\Admin\Grid;
 use Dcat\Admin\Show;
 use Dcat\Admin\Http\Controllers\AdminController;
 
-class BrandController extends AdminController
+class SolutionController extends AdminController
 {
     /**
      * Make a grid builder.
@@ -17,10 +17,11 @@ class BrandController extends AdminController
      */
     protected function grid()
     {
-        return Grid::make(Brand::with('peripherals'), function (Grid $grid) {
+        return Grid::make(new Solution(), function (Grid $grid) {
             $grid->column('id')->sortable();
-            $grid->column('full_name');
-            $grid->column('peripherals')->display(function () { return $this->peripherals()->count(); });
+            $grid->column('peripheral_id');
+            $grid->column('chip_id');
+            $grid->column('distribution_id');
             $grid->column('created_at');
             $grid->column('updated_at')->sortable();
         
@@ -40,10 +41,11 @@ class BrandController extends AdminController
      */
     protected function detail($id)
     {
-        return Show::make($id, new Brand(), function (Show $show) {
+        return Show::make($id, new Solution(), function (Show $show) {
             $show->field('id');
-            $show->field('name');
-            $show->field('subname');
+            $show->field('peripheral_id');
+            $show->field('chip_id');
+            $show->field('distribution_id');
             $show->field('created_at');
             $show->field('updated_at');
         });
@@ -56,10 +58,11 @@ class BrandController extends AdminController
      */
     protected function form()
     {
-        return Form::make(new Brand(), function (Form $form) {
+        return Form::make(new Solution(), function (Form $form) {
             $form->display('id');
-            $form->text('name')->required();
-            $form->text('subname');
+            $form->text('peripheral_id');
+            $form->text('chip_id');
+            $form->text('distribution_id');
         
             $form->display('created_at');
             $form->display('updated_at');
