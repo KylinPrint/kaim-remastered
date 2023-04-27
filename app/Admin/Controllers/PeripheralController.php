@@ -2,6 +2,7 @@
 
 namespace App\Admin\Controllers;
 
+use App\Admin\Actions\Form\ListButton;
 use App\Models\Brand;
 use App\Models\Category;
 use App\Models\Peripheral;
@@ -72,9 +73,10 @@ class PeripheralController extends AdminController
      */
     protected function grid()
     {
-        Admin::script('document.title="' . config('admin.title') . ' | ' . $this->category->title . '"');
+        // 重新生成页面<title>
+        Admin::script('document.title="' . config('admin.title') . ' | 外设 - ' . $this->category->title . '"');
 
-        return Grid::make(Peripheral::with(['brand', 'category', 'specifications']), function (Grid $grid) {
+        return Grid::make(Peripheral::with(['brand', 'category', 'values']), function (Grid $grid) {
             $grid->model()->where('category_id', $this->category->id)->orderBy('created_at', 'desc');
 
             $grid->column('brand.full_name', admin_trans_field('brand_name'));
@@ -82,11 +84,11 @@ class PeripheralController extends AdminController
             // $grid->column('category.title', admin_trans_field('category_title'));
             $grid->column('description');
 
-            # 生成参数列
-            $specifications = Category::find($this->category->id)->specifications->pluck('name');
+            // 生成参数列
+            $specifications = Category::find($this->category->id)->specifications;
             foreach ($specifications as $specification) {
-                $grid->column($specification)->display(function () {
-                    return '不给看';
+                $grid->column($specification->name)->display(function () use ($specification) {
+                    return $this->values()->where('specification_id', $specification->id)->pluck('value')->first();
                 });
             }
 
@@ -97,6 +99,8 @@ class PeripheralController extends AdminController
                 $filter->equal('id');
         
             });
+
+            $grid->model()->setConstraints([ 'category' => $this->category->id ]);
         });
     }
 
@@ -109,7 +113,7 @@ class PeripheralController extends AdminController
      */
     protected function detail($id)
     {
-        return Show::make($id, Peripheral::with(['brand', 'category', 'specifications']), function (Show $show) {
+        return Show::make($id, Peripheral::with(['brand', 'category']), function (Show $show) {
             $show->field('id');
             $show->field('brand.full_name', admin_trans_field('brand_name'));
             $show->field('name');
@@ -127,7 +131,7 @@ class PeripheralController extends AdminController
      */
     protected function form()
     {
-        return Form::make(Peripheral::with(['brand', 'category', 'specifications']), function (Form $form) {
+        return Form::make(Peripheral::with(['brand', 'category', 'values']), function (Form $form) {
             $form->display('id');
             // 编辑时分类
             if ($form->isEditing()) {
@@ -145,13 +149,22 @@ class PeripheralController extends AdminController
             $form->text('description');
 
             // 参数
-            $form->hasMany('specifications', function (Form\NestedForm $form) {
-                $form->select('');
-                $form->text('');
-            });
+            $form->hasMany('values', function (Form\NestedForm $form) {
+                // TODO: 同一个参数不允许多次选择
+                $form->select('specification_id')->options(Specification::where('category_id', $this->category->id)->pluck('name', 'id'));
+                $form->text('value');
+            })->useTable();
         
             $form->display('created_at');
             $form->display('updated_at');
+
+            
+            // 自定义列表按钮
+            $form->tools(function (Form\Tools $tools) {
+                $tools->disableList();
+                $href = '/admin/peripherals?category=' . request('category');
+                $tools->append('<div class="btn-group pull-right" style="margin-right: 5px"><a href="'. $href . '" class="btn btn-sm btn-primary "><i class="feather icon-list"></i><span class="d-none d-sm-inline">&nbsp;'. trans('admin.list') . '</span></a></div>');
+            });
         });
     }
 }
