@@ -76,7 +76,7 @@ class PeripheralController extends AdminController
         // 重新生成页面<title>
         Admin::script('document.title="' . config('admin.title') . ' | 外设 - ' . $this->category->title . '"');
 
-        return Grid::make(Peripheral::with(['brand', 'category']), function (Grid $grid) {
+        return Grid::make(Peripheral::with(['brand', 'category', 'values']), function (Grid $grid) {
             $grid->model()->where('category_id', $this->category->id)->orderBy('created_at', 'desc');
 
             $grid->column('brand.full_name', admin_trans_field('brand_name'));
@@ -87,8 +87,8 @@ class PeripheralController extends AdminController
             // 生成参数列
             $specifications = Category::find($this->category->id)->specifications;
             foreach ($specifications as $specification) {
-                $grid->column($specification->name)->display(function () {
-                    return '不给看';
+                $grid->column($specification->name)->display(function () use ($specification) {
+                    return $this->values()->where('specification_id', $specification->id)->pluck('value')->first();
                 });
             }
 

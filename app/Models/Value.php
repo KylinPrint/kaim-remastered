@@ -11,5 +11,10 @@ class Value extends Model
 	use HasDateTimeFormatter;
     use SoftDeletes;
 
+    protected $fillable = [
+        'specification_id',
+        'value',
+    ];
+
     public function peripheral() { return $this->belongsTo(Peripheral::class); }
 }
